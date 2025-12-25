@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import se.biplob.patientservice.model.enums.Gender;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -16,19 +18,26 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Patient {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(nullable = false)
+    @GeneratedValue(strategy= GenerationType.UUID)
+    @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
-    @Column(nullable = false)
-    private int age;
+
     @Column(nullable = false, unique = true)
     private String email;
-    private String address;
+
+    @Column(name = "birth_date")
     private LocalDate birthDate;
+
+    @CreationTimestamp
+    @Column(name = "registered_date", updatable = false)
     private LocalDate registeredDate;
-    private String gender;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    private String address;
     private String phoneNumber;
 }
