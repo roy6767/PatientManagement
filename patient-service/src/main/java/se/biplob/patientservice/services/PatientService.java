@@ -48,6 +48,20 @@ public class PatientService {
             throw new DuplicateResourceException("Email already in use");
         }
         Patient patient = mapper.toEntity(request);
-        return mapper.toResponse(patientRepository.save(patient));
+        return mapper.toResponse(patientRepository.saveAndFlush(patient));
+    }
+
+    public PatientResponse update(UUID id, PatientRequest request) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException("Patient not found: " + id));
+
+        patientRepository.findByEmail(request.email())
+                .ifPresent(existingWithEmail -> {
+                    if (!existingWithEmail.getId().equals(id)) {
+                        throw new DuplicateResourceException("Email already in use by another patient");
+                    }
+                });
+        mapper.updateEntityFromDto(request, patient);
+        return mapper.toResponse(patientRepository.saveAndFlush(patient));
     }
 }

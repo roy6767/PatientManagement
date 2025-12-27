@@ -1,0 +1,13 @@
+### POST request to create patient
+POST http://localhost:8080/api/v1/patients
+Content-Type: application/json
+
+{
+  "name": "Akshay Kumar",
+  "email":"dhoomachale@outlook.com",
+  "birthDate": "1971-01-02",
+  "address": "andheri 8, mumbai",
+  "gender": "MALE",
+  "phoneNumber": "+467007878"
+}
+###
