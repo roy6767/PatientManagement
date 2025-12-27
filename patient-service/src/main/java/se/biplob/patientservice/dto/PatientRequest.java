@@ -9,8 +9,11 @@ public record PatientRequest(
         @NotBlank(message = "NAME_REQUIRED")
         String name,
 
-        @Email(message = "INVALID_EMAIL")
-        @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}$")
+        @NotBlank(message = "EMAIL_REQUIRED")
+        @Pattern(
+                regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}$",
+                message = "INVALID_EMAIL_FORMAT"
+        )
         String email,
 
         @PastOrPresent(message = "INVALID_BIRTHDATE")

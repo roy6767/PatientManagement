@@ -1,6 +1,8 @@
 package se.biplob.patientservice.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,11 +23,13 @@ import java.util.UUID;
 @RequestMapping("/api/v1/patients")
 @RequiredArgsConstructor
 @Validated
+@Tag(name="Patient",description = "API for managing Patients")
 public class PatientController {
 
     private final PatientService patientService;
 
     @GetMapping
+    @Operation(summary="Get Patients")
     public ResponseEntity<Page<PatientResponse>> getPatients(
             @RequestParam(required = false) String name,
             Pageable pageable) {
@@ -33,12 +37,20 @@ public class PatientController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary="Get Patient by id")
     public ResponseEntity<PatientResponse> getPatientById(@PathVariable UUID id) {
         return ResponseEntity.ok(patientService.findById(id));
     }
 
     @PostMapping
+    @Operation(summary="Create Patient")
     public ResponseEntity<PatientResponse> createPatient(@Valid @RequestBody PatientRequest request) {
         return new ResponseEntity<>(patientService.create(request), HttpStatus.CREATED);
     }
+
+    @PutMapping("/{id}")
+    @Operation(summary="Update Patient by id")
+    public ResponseEntity<PatientResponse> updatePatient(@PathVariable UUID id,@Valid @RequestBody PatientRequest request) {
+        return new ResponseEntity<>(patientService.update(id,request), HttpStatus.OK);
+     }
 }
