@@ -6,24 +6,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Department {
+public class DoctorTreatment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    @Column(name = "doctor_id", nullable = false)
+    private Long doctorId;
 
-    private String description;
-
-    @Column(nullable = false)
-    private boolean active = true;
-
+    @Column(name = "treatment_id", nullable = false)
+    private Long treatmentId;
 }
