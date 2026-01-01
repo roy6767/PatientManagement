@@ -1,11 +1,29 @@
 package se.biplob.departmentservice.model;
 
-import java.util.List;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Treatment {
-    private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false, updatable = false)
+    private Long id;
+
+    @Column(nullable = false)
     private String name;
-    private List<Doctor> doctors;
+
+    @Column(nullable = false)
+    private Long departmentId;
+
+    @Column(nullable = false)
     private Double price;
-    private Department department;
 }
