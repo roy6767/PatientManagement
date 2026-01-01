@@ -64,4 +64,8 @@ public class PatientService {
         mapper.updateEntityFromDto(request, patient);
         return mapper.toResponse(patientRepository.saveAndFlush(patient));
     }
+
+    public Patient findByEmail(String email){
+        return patientRepository.findByEmail(email).orElseThrow(() -> new PatientNotFoundException("Patient not found: " + email));
+    }
 }

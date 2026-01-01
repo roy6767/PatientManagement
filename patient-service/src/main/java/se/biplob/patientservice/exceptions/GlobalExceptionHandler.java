@@ -49,12 +49,12 @@ public class GlobalExceptionHandler {
     }
 
     // 4. The Final Safety Net (500 - Internal Server Error)
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponseDto> handleGeneral(Exception ex) {
-        log.error("CRITICAL ERROR: ", ex); // We log the real error for us
-        return createResponse("An unexpected server error occurred",
-                HttpStatus.INTERNAL_SERVER_ERROR, "Contact support");
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ExceptionResponseDto> handleGeneral(Exception ex) {
+//        log.error("CRITICAL ERROR: ", ex); // We log the real error for us
+//        return createResponse("An unexpected server error occurred",
+//                HttpStatus.INTERNAL_SERVER_ERROR, "Contact support");
+//    }
 
     private ResponseEntity<ExceptionResponseDto> createResponse(String msg, HttpStatus status, String detail) {
         return new ResponseEntity<>(new ExceptionResponseDto(LocalDateTime.now(), msg, detail, status), status);

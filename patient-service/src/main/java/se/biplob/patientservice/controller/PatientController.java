@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import se.biplob.patientservice.dto.PatientRequest;
 import se.biplob.patientservice.dto.PatientResponse;
+import se.biplob.patientservice.model.Patient;
 import se.biplob.patientservice.services.PatientService;
 
 
@@ -52,5 +53,10 @@ public class PatientController {
     @Operation(summary="Update Patient by id")
     public ResponseEntity<PatientResponse> updatePatient(@PathVariable UUID id,@Valid @RequestBody PatientRequest request) {
         return new ResponseEntity<>(patientService.update(id,request), HttpStatus.OK);
+     }
+
+     @GetMapping("/{email}")
+    public Patient getPatientByEmail(@PathVariable String email) {
+        return patientService.findByEmail(email);
      }
 }
