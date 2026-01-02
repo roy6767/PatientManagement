@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/bookings")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Booking", description = "API for managing bookings")
+//@Tag(name = "Booking", description = "API for managing bookings")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -26,7 +26,7 @@ public class BookingController {
        CREATE BOOKING
        ========================= */
     @PostMapping
-    @Operation(summary = "Create a new booking")
+    //@Operation(summary = "Create a new booking")
     public ResponseEntity<BookingResponse> createBooking(
             @Valid @RequestBody CreateBookingRequest request
     ) {
@@ -38,7 +38,7 @@ public class BookingController {
        GET BOOKING BY ID
        ========================= */
     @GetMapping("/{id}")
-    @Operation(summary = "Get booking by id")
+   // @Operation(summary = "Get booking by id")
     public ResponseEntity<BookingResponse> getBooking(@PathVariable UUID id) {
         return ResponseEntity.ok(bookingService.getBooking(id));
     }
@@ -47,7 +47,7 @@ public class BookingController {
        GET BOOKINGS FOR PATIENT
        ========================= */
     @GetMapping("/patient/{patientId}")
-    @Operation(summary = "Get bookings for a patient")
+    //@Operation(summary = "Get bookings for a patient")
     public ResponseEntity<List<BookingResponse>> getPatientBookings(
             @PathVariable UUID patientId
     ) {
@@ -60,7 +60,7 @@ public class BookingController {
        CANCEL BOOKING
        ========================= */
     @PutMapping("/{id}/cancel")
-    @Operation(summary = "Cancel a booking")
+   // @Operation(summary = "Cancel a booking")
     public ResponseEntity<BookingResponse> cancelBooking(
             @PathVariable UUID id
     ) {
@@ -71,7 +71,7 @@ public class BookingController {
        COMPLETE BOOKING
        ========================= */
     @PutMapping("/{id}/complete")
-    @Operation(summary = "Complete a booking")
+    //@Operation(summary = "Complete a booking")
     public ResponseEntity<BookingResponse> completeBooking(
             @PathVariable UUID id
     ) {
@@ -82,7 +82,7 @@ public class BookingController {
        REBOOK
        ========================= */
     @PostMapping("/{id}/rebook")
-    @Operation(summary = "Rebook an existing booking")
+   // @Operation(summary = "Rebook an existing booking")
     public ResponseEntity<BookingResponse> rebook(
             @PathVariable UUID id,
             @Valid @RequestBody CreateBookingRequest request

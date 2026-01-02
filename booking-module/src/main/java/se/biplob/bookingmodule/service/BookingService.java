@@ -33,12 +33,12 @@ public class BookingService {
     public BookingResponse createBooking(CreateBookingRequest request) {
 
         validateTimeRange(request.getStartTime(), request.getEndTime());
-        validateSlotAvailability(
-                request.getDoctorId(),
-                request.getAppointmentDate(),
-                request.getStartTime(),
-                request.getEndTime()
-        );
+//        validateSlotAvailability(
+//                request.getDoctorId(),
+//                request.getAppointmentDate(),
+//                request.getStartTime(),
+//                request.getEndTime()
+//        );
 
         Booking booking = bookingMapper.toEntity(request);
         booking.setStatus(BookingStatus.BOOKED);
@@ -85,12 +85,12 @@ public class BookingService {
 
         // Create new booking
         validateTimeRange(newRequest.getStartTime(), newRequest.getEndTime());
-        validateSlotAvailability(
-                newRequest.getDoctorId(),
-                newRequest.getAppointmentDate(),
-                newRequest.getStartTime(),
-                newRequest.getEndTime()
-        );
+//        validateSlotAvailability(
+//                newRequest.getDoctorId(),
+//                newRequest.getAppointmentDate(),
+//                newRequest.getStartTime(),
+//                newRequest.getEndTime()
+//        );
 
         Booking newBooking = bookingMapper.toEntity(newRequest);
         newBooking.setStatus(BookingStatus.BOOKED);
@@ -147,27 +147,27 @@ public class BookingService {
         }
     }
 
-    private void validateSlotAvailability(
-            Long doctorId,
-            LocalDate date,
-            LocalTime start,
-            LocalTime end
-    ) {
-
-        List<Booking> existingBookings =
-                bookingRepository.findByDoctorIdAndAppointmentDate(doctorId, date);
-
-        boolean overlaps = existingBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.BOOKED)
-                .anyMatch(b ->
-                        start.isBefore(b.getEndTime()) &&
-                                end.isAfter(b.getStartTime())
-                );
-
-        if (overlaps) {
-            throw new SlotAlreadyBookedException(
-                    "Doctor already has a booking in this time slot"
-            );
-        }
-    }
+//    private void validateSlotAvailability(
+//            Long doctorId,
+//            LocalDate date,
+//            LocalTime start,
+//            LocalTime end
+//    ) {
+//
+//        List<Booking> existingBookings =
+//                bookingRepository.findByDoctorIdAndAppointmentDate(doctorId, date);
+//
+//        boolean overlaps = existingBookings.stream()
+//                .filter(b -> b.getStatus() == BookingStatus.BOOKED)
+//                .anyMatch(b ->
+//                        start.isBefore(b.getEndTime()) &&
+//                                end.isAfter(b.getStartTime())
+//                );
+//
+//        if (overlaps) {
+//            throw new SlotAlreadyBookedException(
+//                    "Doctor already has a booking in this time slot"
+//            );
+//        }
+//    }
 }
