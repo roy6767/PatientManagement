@@ -2,7 +2,6 @@ package se.biplob.bookingmodule.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,36 +11,29 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /* =========================
-       DOMAIN EXCEPTIONS
-       ========================= */
-
     @ExceptionHandler(BookingNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleBookingNotFound(
+    public ResponseEntity<ExceptionResponse> handleBookingNotFound(
             BookingNotFoundException ex
     ) {
         return buildError(ex, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(SlotAlreadyBookedException.class)
-    public ResponseEntity<ErrorResponse> handleSlotConflict(
+    public ResponseEntity<ExceptionResponse> handleSlotConflict(
             SlotAlreadyBookedException ex
     ) {
         return buildError(ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(InvalidBookingStateException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidState(
+    public ResponseEntity<ExceptionResponse> handleInvalidState(
             InvalidBookingStateException ex
     ) {
         return buildError(ex, HttpStatus.BAD_REQUEST);
     }
 
-    /* =========================
-       VALIDATION ERRORS
-       ========================= */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(
+    public ResponseEntity<ExceptionResponse> handleValidation(
             MethodArgumentNotValidException ex
     ) {
         String message = ex.getBindingResult()
@@ -53,12 +45,20 @@ public class GlobalExceptionHandler {
 
         return buildError(message, "VALIDATION_FAILED", HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ExceptionResponse> handleExternalService(
+            ExternalServiceException ex
+    ) {
+        return buildError(
+                ex.getMessage(),
+                "EXTERNAL_SERVICE_ERROR",
+                HttpStatus.SERVICE_UNAVAILABLE
+        );
+    }
 
-    /* =========================
-       FALLBACK
-       ========================= */
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+    public ResponseEntity<ExceptionResponse> handleGeneric(Exception ex) {
         return buildError(
                 "Internal server error",
                 ex.getClass().getSimpleName(),
@@ -66,26 +66,23 @@ public class GlobalExceptionHandler {
         );
     }
 
-    /* =========================
-       HELPER
-       ========================= */
-    private ResponseEntity<ErrorResponse> buildError(
+    private ResponseEntity<ExceptionResponse> buildError(
             Exception ex,
             HttpStatus status
     ) {
         return buildError(ex.getMessage(), ex.getClass().getSimpleName(), status);
     }
 
-    private ResponseEntity<ErrorResponse> buildError(
+    private ResponseEntity<ExceptionResponse> buildError(
             String message,
             String cause,
             HttpStatus status
     ) {
         return new ResponseEntity<>(
-                ErrorResponse.builder()
+                ExceptionResponse.builder()
                         .message(message)
                         .cause(cause)
-                        .httpStatus(status.value())
+                        .status(status)
                         .timestamp(LocalDateTime.now())
                         .build(),
                 status

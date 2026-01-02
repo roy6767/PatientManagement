@@ -6,15 +6,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import se.biplob.bookingmodule.dtos.feign.DoctorFeignResponse;
+import se.biplob.bookingmodule.dtos.feign.PatientFeignResponse;
+import se.biplob.bookingmodule.dtos.feign.TreatmentFeignResponse;
 import se.biplob.bookingmodule.dtos.request.CreateBookingRequest;
 import se.biplob.bookingmodule.dtos.response.BookingResponse;
 import se.biplob.bookingmodule.exceptions.BookingNotFoundException;
+import se.biplob.bookingmodule.exceptions.ExternalServiceException;
 import se.biplob.bookingmodule.exceptions.InvalidBookingStateException;
+import se.biplob.bookingmodule.exceptions.SlotAlreadyBookedException;
+import se.biplob.bookingmodule.feignclient.DepartmentClient;
+import se.biplob.bookingmodule.feignclient.PatientClient;
 import se.biplob.bookingmodule.mapper.BookingMapper;
 import se.biplob.bookingmodule.model.Booking;
 import se.biplob.bookingmodule.model.Enum.BookingStatus;
 import se.biplob.bookingmodule.repository.BookingRepository;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
@@ -26,19 +35,40 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
+    private final PatientClient patientClient;
+    private final DepartmentClient departmentClient;
 
-    /* =========================
-       CREATE BOOKING
-       ========================= */
     public BookingResponse createBooking(CreateBookingRequest request) {
 
+        PatientFeignResponse patient =
+                patientClient.getPatientById(request.getPatientId());
+
+        if (patient == null) {
+            throw new ExternalServiceException("Patient not found");
+        }
+
+        DoctorFeignResponse doctor =
+                departmentClient.getDoctor(request.getDoctorId());
+
+        if (!doctor.isActive()) {
+            throw new InvalidBookingStateException("Doctor is inactive");
+        }
+
+        TreatmentFeignResponse treatment =
+                departmentClient.getTreatment(request.getTreatmentId());
+
         validateTimeRange(request.getStartTime(), request.getEndTime());
-//        validateSlotAvailability(
-//                request.getDoctorId(),
-//                request.getAppointmentDate(),
-//                request.getStartTime(),
-//                request.getEndTime()
-//        );
+        validateSlotAvailability(
+                request.getDoctorId(),
+                request.getAppointmentDate(),
+                request.getStartTime(),
+                request.getEndTime()
+        );
+        validateWeeklyLimits(
+                doctor,
+                request.getDoctorId(),
+                request.getAppointmentDate()
+        );
 
         Booking booking = bookingMapper.toEntity(request);
         booking.setStatus(BookingStatus.BOOKED);
@@ -48,9 +78,6 @@ public class BookingService {
         );
     }
 
-    /* =========================
-       CANCEL BOOKING
-       ========================= */
     public BookingResponse cancelBooking(UUID bookingId) {
 
         Booking booking = getActiveBooking(bookingId);
@@ -59,9 +86,6 @@ public class BookingService {
         return bookingMapper.toResponse(booking);
     }
 
-    /* =========================
-       COMPLETE BOOKING
-       ========================= */
     public BookingResponse completeBooking(UUID bookingId) {
 
         Booking booking = getActiveBooking(bookingId);
@@ -70,9 +94,7 @@ public class BookingService {
         return bookingMapper.toResponse(booking);
     }
 
-    /* =========================
-       REBOOK (cancel + create)
-       ========================= */
+
     public BookingResponse rebook(
             UUID bookingId,
             CreateBookingRequest newRequest
@@ -85,12 +107,12 @@ public class BookingService {
 
         // Create new booking
         validateTimeRange(newRequest.getStartTime(), newRequest.getEndTime());
-//        validateSlotAvailability(
-//                newRequest.getDoctorId(),
-//                newRequest.getAppointmentDate(),
-//                newRequest.getStartTime(),
-//                newRequest.getEndTime()
-//        );
+        validateSlotAvailability(
+                newRequest.getDoctorId(),
+                newRequest.getAppointmentDate(),
+                newRequest.getStartTime(),
+                newRequest.getEndTime()
+        );
 
         Booking newBooking = bookingMapper.toEntity(newRequest);
         newBooking.setStatus(BookingStatus.BOOKED);
@@ -101,9 +123,7 @@ public class BookingService {
         );
     }
 
-    /* =========================
-       GET BOOKINGS
-       ========================= */
+
     @Transactional(readOnly = true)
     public BookingResponse getBooking(UUID id) {
         return bookingRepository.findById(id)
@@ -121,9 +141,6 @@ public class BookingService {
                 .toList();
     }
 
-    /* =========================
-       VALIDATIONS
-       ========================= */
 
     private Booking getActiveBooking(UUID bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -147,27 +164,50 @@ public class BookingService {
         }
     }
 
-//    private void validateSlotAvailability(
-//            Long doctorId,
-//            LocalDate date,
-//            LocalTime start,
-//            LocalTime end
-//    ) {
-//
-//        List<Booking> existingBookings =
-//                bookingRepository.findByDoctorIdAndAppointmentDate(doctorId, date);
-//
-//        boolean overlaps = existingBookings.stream()
-//                .filter(b -> b.getStatus() == BookingStatus.BOOKED)
-//                .anyMatch(b ->
-//                        start.isBefore(b.getEndTime()) &&
-//                                end.isAfter(b.getStartTime())
-//                );
-//
-//        if (overlaps) {
-//            throw new SlotAlreadyBookedException(
-//                    "Doctor already has a booking in this time slot"
-//            );
-//        }
-//    }
+    private void validateSlotAvailability(
+            Long doctorId,
+            LocalDate date,
+            LocalTime start,
+            LocalTime end
+    ) {
+
+        List<Booking> existingBookings =
+                bookingRepository.findByDoctorIdAndAppointmentDate(doctorId, date);
+
+        boolean overlaps = existingBookings.stream()
+                .filter(b -> b.getStatus() == BookingStatus.BOOKED)
+                .anyMatch(b ->
+                        start.isBefore(b.getEndTime()) &&
+                                end.isAfter(b.getStartTime())
+                );
+
+        if (overlaps) {
+            throw new SlotAlreadyBookedException(
+                    "Doctor already has a booking in this time slot"
+            );
+        }
+    }
+
+    private void validateWeeklyLimits(
+            DoctorFeignResponse doctor,
+            Long doctorId,
+            LocalDate date
+    ) {
+        LocalDate weekStart = date.with(DayOfWeek.MONDAY);
+        LocalDate weekEnd = weekStart.plusDays(6);
+
+        long count = bookingRepository.countByDoctorIdAndAppointmentDateBetweenAndStatus(
+                doctorId,
+                weekStart,
+                weekEnd,
+                BookingStatus.BOOKED
+        );
+
+        if (count >= doctor.getMaxWeeklyBookings()) {
+            throw new InvalidBookingStateException(
+                    "Doctor has reached weekly booking limit"
+            );
+        }
+    }
+
 }
