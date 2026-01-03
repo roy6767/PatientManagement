@@ -1,0 +1,5 @@
+services:
+  patient:
+    url: http://localhost:8081
+  department:
+    url: http://localhost:8082
