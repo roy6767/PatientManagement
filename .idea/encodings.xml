@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/apigateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/billing-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/booking-module/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/booking-module/target/generated-sources/protobuf/grpc-java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/booking-module/target/generated-sources/protobuf/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/booking-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/demo/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/departmentservice/notificationservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/departmentservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/notificationservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/patient-service/src/main/java" charset="UTF-8" />
   </component>
 </project>

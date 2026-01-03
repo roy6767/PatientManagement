@@ -11,6 +11,8 @@
         <option value="$PROJECT_DIR$/booking-module/pom.xml" />
         <option value="$PROJECT_DIR$/departmentservice/pom.xml" />
         <option value="$PROJECT_DIR$/departmentservice/notificationservice/pom.xml" />
+        <option value="$PROJECT_DIR$/notificationservice/pom.xml" />
+        <option value="$PROJECT_DIR$/apigateway/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
@@ -18,11 +20,6 @@
         <option value="$PROJECT_DIR$/booking-service/pom.xml" />
         <option value="$PROJECT_DIR$/demo/pom.xml" />
         <option value="$PROJECT_DIR$/departmentservice/notificationservice/pom.xml" />
-      </set>
-    </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/booking-service/pom.xml" />
       </set>
     </option>
   </component>

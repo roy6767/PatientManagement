@@ -8,5 +8,6 @@ import lombok.Setter;
 public class TreatmentFeignResponse {
     private Long id;
     private Long departmentId;
+    private Double price;
 }
 

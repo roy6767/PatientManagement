@@ -1,11 +1,8 @@
 package se.biplob.bookingmodule.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import se.biplob.bookingmodule.dtos.feign.DoctorFeignResponse;
 import se.biplob.bookingmodule.dtos.feign.PatientFeignResponse;
 import se.biplob.bookingmodule.dtos.feign.TreatmentFeignResponse;
@@ -17,6 +14,9 @@ import se.biplob.bookingmodule.exceptions.InvalidBookingStateException;
 import se.biplob.bookingmodule.exceptions.SlotAlreadyBookedException;
 import se.biplob.bookingmodule.feignclient.DepartmentClient;
 import se.biplob.bookingmodule.feignclient.PatientClient;
+import se.biplob.bookingmodule.kafka.event.BookingCancelledEvent;
+import se.biplob.bookingmodule.kafka.event.BookingCreatedEvent;
+import se.biplob.bookingmodule.kafka.producer.BookingEventProducer;
 import se.biplob.bookingmodule.mapper.BookingMapper;
 import se.biplob.bookingmodule.model.Booking;
 import se.biplob.bookingmodule.model.Enum.BookingStatus;
@@ -24,6 +24,7 @@ import se.biplob.bookingmodule.repository.BookingRepository;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +38,7 @@ public class BookingService {
     private final BookingMapper bookingMapper;
     private final PatientClient patientClient;
     private final DepartmentClient departmentClient;
+    private final BookingEventProducer bookingEventProducer;
 
     public BookingResponse createBooking(CreateBookingRequest request) {
 
@@ -72,10 +74,22 @@ public class BookingService {
 
         Booking booking = bookingMapper.toEntity(request);
         booking.setStatus(BookingStatus.BOOKED);
+        booking = bookingRepository.save(booking);
 
-        return bookingMapper.toResponse(
-                bookingRepository.save(booking)
+        bookingEventProducer.publishBookingCreated(
+                BookingCreatedEvent.builder()
+                        .bookingId(booking.getId())
+                        .patientId(booking.getPatientId())
+                        .doctorId(booking.getDoctorId())
+                        .treatmentId(booking.getTreatmentId())
+                        .appointmentDate(booking.getAppointmentDate())
+                        .startTime(booking.getStartTime())
+                        .endTime(booking.getEndTime())
+                        .amount(calculateAmount(treatment))
+                        .build()
         );
+
+        return bookingMapper.toResponse(booking);
     }
 
     public BookingResponse cancelBooking(UUID bookingId) {
@@ -83,6 +97,19 @@ public class BookingService {
         Booking booking = getActiveBooking(bookingId);
 
         booking.setStatus(BookingStatus.CANCELLED);
+        bookingEventProducer.publishBookingCancelled(
+                BookingCancelledEvent.builder()
+                        .bookingId(booking.getId())
+                        .patientId(booking.getPatientId())
+                        .doctorId(booking.getDoctorId())
+                        .treatmentId(booking.getTreatmentId())
+                        .appointmentDate(booking.getAppointmentDate())
+                        .startTime(booking.getStartTime())
+                        .endTime(booking.getEndTime())
+                        .cancelledAt(LocalDateTime.now())
+                        .build()
+        );
+
         return bookingMapper.toResponse(booking);
     }
 
@@ -209,5 +236,12 @@ public class BookingService {
             );
         }
     }
+    private Double calculateAmount(TreatmentFeignResponse treatment) {
+        if (treatment.getPrice() == null || treatment.getPrice() <= 0) {
+            throw new InvalidBookingStateException("Invalid treatment price");
+        }
+        return treatment.getPrice();
+    }
+
 
 }
