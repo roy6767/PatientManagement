@@ -35,6 +35,7 @@ public class Invoice {
     private Double amount;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private InvoiceStatus status;
 
     @CreationTimestamp

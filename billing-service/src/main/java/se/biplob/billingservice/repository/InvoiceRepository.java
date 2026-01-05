@@ -8,5 +8,8 @@ import java.util.Optional;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
+
     Optional<Invoice> findByBookingId(UUID bookingId);
+
+    boolean existsByBookingId(UUID bookingId);
 }
