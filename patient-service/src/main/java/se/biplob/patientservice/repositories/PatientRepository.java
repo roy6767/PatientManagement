@@ -11,6 +11,4 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
     Optional<Patient> findByEmail(String email);
     boolean existsByEmail(String email);
     Page<Patient> findByNameContainingIgnoreCase(String name, Pageable pageable);
-    Page<Patient> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-            String name, String email, Pageable pageable);
 }

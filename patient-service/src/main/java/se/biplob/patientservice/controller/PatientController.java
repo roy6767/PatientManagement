@@ -55,7 +55,8 @@ public class PatientController {
         return new ResponseEntity<>(patientService.update(id,request), HttpStatus.OK);
      }
 
-     @GetMapping("/{email}")
+
+    @GetMapping("/{email}")
     public Patient getPatientByEmail(@PathVariable String email) {
         return patientService.findByEmail(email);
      }
