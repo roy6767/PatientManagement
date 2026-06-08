@@ -9,5 +9,6 @@ public class TreatmentResponse {
 
     private Long id;
     private String name;
+    private Long departmentId;
     private double price;
 }

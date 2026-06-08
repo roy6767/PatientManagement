@@ -45,6 +45,12 @@ public class TreatmentService {
         return treatmentMapper.toResponse(treatment);
     }
 
+    public TreatmentResponse getTreatmentById(Long id) {
+        Treatment treatment = treatmentRepository.findById(id)
+                .orElseThrow(() -> new TreatmentNotFoundException(id));
+        return treatmentMapper.toResponse(treatment);
+    }
+
     public List<TreatmentResponse> getTreatmentsByDepartment(Long departmentId) {
         return treatmentRepository.findByDepartmentId(departmentId)
                 .stream()

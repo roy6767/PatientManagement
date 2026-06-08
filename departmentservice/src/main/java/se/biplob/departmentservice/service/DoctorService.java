@@ -63,6 +63,12 @@ public class DoctorService {
                 .toList();
     }
 
+    public DoctorResponse getDoctorById(Long doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new DoctorNotFoundException(doctorId));
+        return doctorMapper.toResponse(doctor);
+    }
+
     public DoctorWithTreatmentsResponse getDoctorWithTreatments(Long doctorId) {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new DoctorNotFoundException(doctorId));

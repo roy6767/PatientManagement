@@ -33,6 +33,11 @@ public class TreatmentController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TreatmentResponse> getTreatmentById(@PathVariable Long id) {
+        return ResponseEntity.ok(treatmentService.getTreatmentById(id));
+    }
+
     @GetMapping("/department/{departmentId}")
     public ResponseEntity<List<TreatmentResponse>> getTreatmentsByDepartment(@PathVariable Long departmentId) {
         List<TreatmentResponse> response = treatmentService.getTreatmentsByDepartment(departmentId);
