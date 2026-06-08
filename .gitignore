@@ -1,0 +1,31 @@
+# Maven build output
+**/target/
+**/pom.xml.tag
+**/pom.xml.releaseBackup
+**/pom.xml.versionsBackup
+**/release.properties
+
+# IDE and editor files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Spring Boot local overrides
+**/application-local.properties
+**/application-local.yml
+
+# Local development notes and workspace state (not part of project source)
+.claude/
+CLAUDE.md
+
+# Environment and secrets
+.env
+*.env
