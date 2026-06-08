@@ -6,16 +6,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import se.biplob.bookingmodule.dtos.feign.DoctorFeignResponse;
 import se.biplob.bookingmodule.dtos.feign.TreatmentFeignResponse;
 
-@FeignClient(
-        name = "department-service",
-        url = "${services.department.url}"
-)
+@FeignClient(name = "departmentservice", fallbackFactory = DepartmentClientFallbackFactory.class)
 public interface DepartmentClient {
 
-    @GetMapping("/api/v1/doctors/{id}")
+    @GetMapping("/api/doctors/{id}")
     DoctorFeignResponse getDoctor(@PathVariable Long id);
 
-    @GetMapping("/api/v1/treatments/{id}")
+    @GetMapping("/api/treatments/{id}")
     TreatmentFeignResponse getTreatment(@PathVariable Long id);
 }
 

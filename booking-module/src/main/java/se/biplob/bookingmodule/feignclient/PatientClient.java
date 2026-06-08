@@ -7,10 +7,7 @@ import se.biplob.bookingmodule.dtos.feign.PatientFeignResponse;
 
 import java.util.UUID;
 
-@FeignClient(
-        name = "patient-service",
-        url = "${services.patient.url}"
-)
+@FeignClient(name = "patient-service", fallbackFactory = PatientClientFallbackFactory.class)
 public interface PatientClient {
 
     @GetMapping("/api/v1/patients/{id}")
