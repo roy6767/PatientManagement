@@ -1,8 +1,8 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
 
-  # ─── Infrastructure ─────────────────────────────────────────────────────────
+  # -- Infrastructure --
 
   mysql:
     image: mysql:8.0
@@ -59,10 +59,10 @@ services:
       timeout: 5s
       retries: 10
 
-  # ─── Service Discovery ───────────────────────────────────────────────────────
+  # -- Service Discovery --
 
-  eureka-server:
-    build: ./eureka-server
+  eureka-module:
+    build: ./eureka-module
     container_name: patients-eureka
     ports:
       - "8761:8761"
@@ -72,103 +72,103 @@ services:
       timeout: 5s
       retries: 10
 
-  # ─── Config Server ───────────────────────────────────────────────────────────
+  # -- Config Server --
 
-  config-server:
-    build: ./config-server
+  config-module:
+    build: ./config-module
     container_name: patients-config
     ports:
       - "8889:8889"
     depends_on:
-      eureka-server:
+      eureka-module:
         condition: service_healthy
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-module:8761/eureka/
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8889/actuator/health | grep UP || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 10
 
-  # ─── Authentication ──────────────────────────────────────────────────────────
+  # -- Authentication --
 
-  auth-service:
-    build: ./auth-service
+  auth-module:
+    build: ./auth-module
     container_name: patients-auth
     ports:
       - "8085:8085"
     depends_on:
       mysql:
         condition: service_healthy
-      eureka-server:
+      eureka-module:
         condition: service_healthy
-      config-server:
+      config-module:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
       SPRING_DATASOURCE_HIKARI_USERNAME: root
       SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-module:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-module:8889"
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
-  # ─── API Gateway ─────────────────────────────────────────────────────────────
+  # -- API Gateway --
 
-  api-gateway:
-    build: ./apigateway
+  gateway-module:
+    build: ./gateway-module
     container_name: patients-gateway
     ports:
       - "8888:8888"
     depends_on:
-      eureka-server:
+      eureka-module:
         condition: service_healthy
-      config-server:
+      config-module:
         condition: service_healthy
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-module:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-module:8889"
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
-  # ─── Business Services ───────────────────────────────────────────────────────
+  # -- Business Modules --
 
-  patient-service:
-    build: ./patient-service
+  patient-module:
+    build: ./patient-module
     container_name: patients-patient
     ports:
       - "8080:8080"
     depends_on:
       mysql:
         condition: service_healthy
-      eureka-server:
+      eureka-module:
         condition: service_healthy
-      config-server:
+      config-module:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
       SPRING_DATASOURCE_HIKARI_USERNAME: root
       SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-module:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-module:8889"
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
-  departmentservice:
-    build: ./departmentservice
+  department-module:
+    build: ./department-module
     container_name: patients-department
     ports:
       - "8082:8082"
     depends_on:
       mysql:
         condition: service_healthy
-      eureka-server:
+      eureka-module:
         condition: service_healthy
-      config-server:
+      config-module:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
       SPRING_DATASOURCE_HIKARI_USERNAME: root
       SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-module:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-module:8889"
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   booking-module:
@@ -181,21 +181,21 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-      eureka-server:
+      eureka-module:
         condition: service_healthy
-      config-server:
+      config-module:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
       SPRING_DATASOURCE_HIKARI_USERNAME: root
       SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-module:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-module:8889"
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
-  billing-service:
-    build: ./billing-service
+  billing-module:
+    build: ./billing-module
     container_name: patients-billing
     ports:
       - "8086:8086"
@@ -204,35 +204,35 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-      eureka-server:
+      eureka-module:
         condition: service_healthy
-      config-server:
+      config-module:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
       SPRING_DATASOURCE_HIKARI_USERNAME: root
       SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-module:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-module:8889"
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
-  notification-service:
-    build: ./notificationservice
+  notification-module:
+    build: ./notification-module
     container_name: patients-notification
     ports:
       - "8087:8087"
     depends_on:
       kafka:
         condition: service_healthy
-      eureka-server:
+      eureka-module:
         condition: service_healthy
-      config-server:
+      config-module:
         condition: service_healthy
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-module:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-module:8889"
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
       MAIL_USERNAME: ${MAIL_USERNAME:-your-email@gmail.com}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-your-app-password}

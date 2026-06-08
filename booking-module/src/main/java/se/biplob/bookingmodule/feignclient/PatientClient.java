@@ -1,4 +1,4 @@
-package se.biplob.bookingmodule.feignclient;
+﻿package se.biplob.bookingmodule.feignclient;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,7 +7,7 @@ import se.biplob.bookingmodule.dtos.feign.PatientFeignResponse;
 
 import java.util.UUID;
 
-@FeignClient(name = "patient-service", fallbackFactory = PatientClientFallbackFactory.class)
+@FeignClient(name = "patient-module", fallbackFactory = PatientClientFallbackFactory.class)
 public interface PatientClient {
 
     @GetMapping("/api/v1/patients/{id}")
