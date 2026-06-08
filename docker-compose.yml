@@ -1,0 +1,242 @@
+version: '3.8'
+
+services:
+
+  # ─── Infrastructure ─────────────────────────────────────────────────────────
+
+  mysql:
+    image: mysql:8.0
+    container_name: patients-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Bip1992lob.@
+      MYSQL_DATABASE: patients_management
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pBip1992lob.@"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: patients-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: patients-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  zipkin:
+    image: openzipkin/zipkin:3
+    container_name: patients-zipkin
+    ports:
+      - "9411:9411"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9411/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ─── Service Discovery ───────────────────────────────────────────────────────
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: patients-eureka
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8761/actuator/health | grep UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  # ─── Config Server ───────────────────────────────────────────────────────────
+
+  config-server:
+    build: ./config-server
+    container_name: patients-config
+    ports:
+      - "8889:8889"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8889/actuator/health | grep UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  # ─── Authentication ──────────────────────────────────────────────────────────
+
+  auth-service:
+    build: ./auth-service
+    container_name: patients-auth
+    ports:
+      - "8085:8085"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
+      SPRING_DATASOURCE_HIKARI_USERNAME: root
+      SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+  # ─── API Gateway ─────────────────────────────────────────────────────────────
+
+  api-gateway:
+    build: ./apigateway
+    container_name: patients-gateway
+    ports:
+      - "8888:8888"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+  # ─── Business Services ───────────────────────────────────────────────────────
+
+  patient-service:
+    build: ./patient-service
+    container_name: patients-patient
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
+      SPRING_DATASOURCE_HIKARI_USERNAME: root
+      SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+  departmentservice:
+    build: ./departmentservice
+    container_name: patients-department
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
+      SPRING_DATASOURCE_HIKARI_USERNAME: root
+      SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+  booking-module:
+    build: ./booking-module
+    container_name: patients-booking
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
+      SPRING_DATASOURCE_HIKARI_USERNAME: root
+      SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+  billing-service:
+    build: ./billing-service
+    container_name: patients-billing
+    ports:
+      - "8086:8086"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patients_management
+      SPRING_DATASOURCE_HIKARI_USERNAME: root
+      SPRING_DATASOURCE_HIKARI_PASSWORD: "Bip1992lob.@"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+  notification-service:
+    build: ./notificationservice
+    container_name: patients-notification
+    ports:
+      - "8087:8087"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8889"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      MAIL_USERNAME: ${MAIL_USERNAME:-your-email@gmail.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-your-app-password}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@patientmanagement.se}
+
+volumes:
+  mysql-data:
