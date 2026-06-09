@@ -32,8 +32,9 @@ export const usePatientStore = create<PatientState>((set) => ({
   fetchPatients: async (page = 0, size = 10, search = '') => {
     set({ loading: true })
     try {
+      // Backend uses Spring Pageable: ?page=&size= and ?name= for search
       const params: Record<string, unknown> = { page, size }
-      if (search) params.search = search
+      if (search) params.name = search
       const res = await api.get('/v1/patients', { params })
       const data = res.data
       set({
