@@ -28,16 +28,16 @@ export default function PatientModal({ onClose }: Props) {
         <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #1e3a6a' }}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 flex items-center justify-center" style={{ backgroundColor: '#1a2d52' }}>
-              <User size={18} style={{ color: '#60a5fa' }} />
+              <User size={18} style={{ color: '#93c5fd' }} />
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: '#e0eaff' }}>New Patient</p>
-              <p className="text-xs" style={{ color: '#5a7fa8' }}>Fill in the patient details below</p>
+              <p className="text-sm font-semibold" style={{ color: '#ffffff' }}>New Patient</p>
+              <p className="text-xs" style={{ color: '#a0c0e8' }}>Fill in the patient details below</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center transition-colors" style={{ color: '#5a7fa8' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#bfdbfe')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#5a7fa8')}>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center transition-colors" style={{ color: '#a0c0e8' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#a0c0e8')}>
             <X size={18} />
           </button>
         </div>
@@ -65,7 +65,7 @@ export default function PatientModal({ onClose }: Props) {
 
         <div className="flex gap-3 px-6 pb-6">
           <button type="button" onClick={onClose} className="flex-1 py-2.5 text-sm font-semibold transition-colors"
-            style={{ border: '1px solid #1e3a6a', color: '#7b96c2' }}>Cancel</button>
+            style={{ border: '1px solid #1e3a6a', color: '#b8cef5' }}>Cancel</button>
           <button type="submit" disabled={loading} onClick={handleSubmit} className="flex-1 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-50"
             style={{ backgroundColor: '#1d4ed8' }}>
             {loading ? 'Saving…' : 'Create Patient'}
@@ -79,10 +79,11 @@ export default function PatientModal({ onClose }: Props) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: '#5a7fa8' }}>{label}</label>
+      <label className="block text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: '#a0c0e8' }}>{label}</label>
       {children}
     </div>
   )
 }
+
 
 

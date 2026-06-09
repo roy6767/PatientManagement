@@ -52,13 +52,13 @@ export default function LoginPage() {
         className="hidden lg:block">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 flex items-center justify-center" style={{ backgroundColor: '#1d4ed8' }}>
-            <Activity size={22} className="text-[#93c5fd]" />
+            <Activity size={22} className="text-[#bfdbfe]" />
           </div>
           <span className="text-white font-bold text-xl tracking-tight">MediCare</span>
         </div>
         <h1 className="text-4xl font-black text-white leading-tight">
           Manage your<br />patients{' '}
-          <span style={{ color: '#93c5fd' }}>smarter.</span>
+          <span style={{ color: '#bfdbfe' }}>smarter.</span>
         </h1>
         <p className="mt-4 text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
           A complete hospital management system for bookings,<br />billing, departments and more.
@@ -79,12 +79,12 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-5 lg:hidden">
             <div className="w-8 h-8 flex items-center justify-center" style={{ backgroundColor: '#1d4ed8' }}>
-              <Activity size={16} className="text-[#93c5fd]" />
+              <Activity size={16} className="text-[#bfdbfe]" />
             </div>
             <span className="text-white font-bold">MediCare</span>
           </div>
           <h2 className="text-xl font-bold text-white">Log into MediCare</h2>
-          <p className="text-xs mt-1" style={{ color: '#7b96c2' }}>Enter your credentials to continue</p>
+          <p className="text-xs mt-1" style={{ color: '#b8cef5' }}>Enter your credentials to continue</p>
         </div>
 
         {/* Form */}
@@ -106,7 +106,7 @@ export default function LoginPage() {
               onChange={e => setter(e.target.value)}
               required
               placeholder={placeholder}
-              className="w-full px-4 py-3 text-sm text-white focus:outline-none transition-colors placeholder-[#5a7fa8]"
+              className="w-full px-4 py-3 text-sm text-white focus:outline-none transition-colors placeholder-[#a0c0e8]"
               style={{ backgroundColor: 'rgba(0,0,0,0.35)', border: '1px solid rgba(96,165,250,0.30)' }}
               onFocus={e  => (e.target.style.borderColor  = 'rgba(96,165,250,0.80)')}
               onBlur={e   => (e.target.style.borderColor  = 'rgba(96,165,250,0.30)')}
@@ -125,7 +125,7 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center pt-1">
-            <a href="#" onClick={e => e.preventDefault()} className="text-xs" style={{ color: '#60a5fa' }}>
+            <a href="#" onClick={e => e.preventDefault()} className="text-xs" style={{ color: '#93c5fd' }}>
               Forgot password?
             </a>
           </div>
@@ -134,7 +134,7 @@ export default function LoginPage() {
         {/* OR divider */}
         <div className="flex items-center gap-4 px-8">
           <div className="flex-1 h-px" style={{ backgroundColor: 'rgba(96,165,250,0.07)' }} />
-          <span className="text-[10px] font-bold tracking-widest" style={{ color: '#1a2e5a' }}>OR</span>
+          <span className="text-[10px] font-bold tracking-widest" style={{ color: '#4a6fa5' }}>OR</span>
           <div className="flex-1 h-px" style={{ backgroundColor: 'rgba(96,165,250,0.07)' }} />
         </div>
 
@@ -142,7 +142,7 @@ export default function LoginPage() {
         <div className="px-8 pt-4 pb-8 space-y-3">
           <button onClick={handleDemoLogin}
             className="w-full py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
-            style={{ border: '1px solid rgba(96,165,250,0.18)', color: '#60a5fa', backgroundColor: 'transparent' }}
+            style={{ border: '1px solid rgba(96,165,250,0.18)', color: '#93c5fd', backgroundColor: 'transparent' }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(96,165,250,0.05)')}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
           >
@@ -164,15 +164,16 @@ export default function LoginPage() {
           <div className="flex justify-center gap-4 pt-4 mb-1">
             {['About', 'Help', 'Privacy', 'Terms'].map(item => (
               <a key={item} href="#" onClick={e => e.preventDefault()}
-                className="text-[10px] hover:underline" style={{ color: '#1a2e5a' }}>
+                className="text-[10px] hover:underline" style={{ color: '#4a6fa5' }}>
                 {item}
               </a>
             ))}
           </div>
-          <p className="text-[10px]" style={{ color: '#1a2e5a' }}>© 2026 MEDICARE</p>
+          <p className="text-[10px]" style={{ color: '#4a6fa5' }}>© 2026 MEDICARE</p>
         </div>
       </div>
     </div>
   )
 }
+
 
